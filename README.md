@@ -53,13 +53,13 @@ See `.env.example` for all available options.
 
 ```bash
 # Single problem with OpenAI
-python run_agent_benchmark.py --problem-id 0 --model gpt-4o --verbose
+uv run run_agent_benchmark.py --problem-id 0 --model gpt-4o --verbose
 
 # With DeepSeek (or any OpenAI-compatible provider)
-python run_agent_benchmark.py --problem-id 0 --model deepseek-v4-flash --api-base https://api.deepseek.com --no-vision --verbose
+uv run run_agent_benchmark.py --problem-id 0 --model deepseek-v4-flash --api-base https://api.deepseek.com --no-vision --verbose
 
 # Batch mode
-python run_agent_benchmark.py --batch --model gpt-4o --limit 10
+uv run run_agent_benchmark.py --batch --model gpt-4o --limit 10
 ```
 
 **Note:** Non-OpenAI models often don't support image inputs. Use `--no-vision` to disable sending rendered images to the LLM. Vision-capable models (e.g. GPT-4o, Claude 3.5 Sonnet, Gemini) can use vision by omitting this flag.
@@ -67,7 +67,7 @@ python run_agent_benchmark.py --batch --model gpt-4o --limit 10
 ### Interactive Viewer
 
 ```bash
-python preview.py
+uv run preview.py
 ```
 
 **Controls:**

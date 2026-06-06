@@ -34,7 +34,7 @@ class MultimodalMessage:
 class MultimodalInterface:
     """Interface for vision-enabled LLMs."""
     
-    def __init__(self, model: str = "gpt-4o", api_key: Optional[str] = None,
+    def __init__(self, model: Optional[str] = None, api_key: Optional[str] = None,
                  api_base: Optional[str] = None, use_cache: bool = True,
                  cache_ttl: str = "18000s"):
         """
@@ -43,12 +43,13 @@ class MultimodalInterface:
         Args:
             model: Model name (gpt-4o, gpt-4-vision-preview, claude-3-5-sonnet-20241022,
                               or vLLM model name like Qwen/Qwen2.5-VL-7B-Instruct)
+                              (default: OPENAI_MODEL env or "gpt-4o")
             api_key: API key (if None, loads from environment)
-            api_base: API base URL for vLLM or custom endpoints
+            api_base: API base URL for vLLM or custom endpoints (default: OPENAI_API_BASE env)
             use_cache: Enable context caching for Gemini models (system_prompt caching)
             cache_ttl: Cache time-to-live (e.g., "3600s" for 1 hour, default)
         """
-        self.model = model
+        self.model = model or os.getenv("OPENAI_MODEL", "gpt-4o")
         self.api_key = api_key
         self.api_base = api_base or os.getenv("OPENAI_API_BASE")
         self.use_cache = use_cache

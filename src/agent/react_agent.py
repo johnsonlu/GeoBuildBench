@@ -137,6 +137,7 @@ class ReActAgent:
     def __init__(
         self,
         model: str = "gpt-4o",
+        api_base: Optional[str] = None,
         max_iterations: int = 10,
         save_images: bool = True,
         image_dir: Optional[str] = None,
@@ -152,6 +153,7 @@ class ReActAgent:
 
         Args:
             model: LLM model to use
+            api_base: API base URL for OpenAI-compatible endpoints (default: from OPENAI_API_BASE env)
             max_iterations: Maximum ReAct iterations
             save_images: Whether to save images
             image_dir: Directory for images
@@ -163,13 +165,14 @@ class ReActAgent:
             additional_prompt: Additional prompt text to append to system prompt (optional)
         """
         self.model = model
+        self.api_base = api_base
         self.max_iterations = max_iterations
         self.save_images = save_images
         self.verbose = verbose
         self.use_vision = use_vision
 
         # Initialize components
-        self.multimodal = MultimodalInterface(model=model)
+        self.multimodal = MultimodalInterface(model=model, api_base=api_base)
         self.executor = DSLExecutor(
             save_images=save_images,
             image_dir=image_dir or str(get_output_dir("agent_images")),

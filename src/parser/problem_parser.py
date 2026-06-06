@@ -1173,13 +1173,14 @@ Only return JSON, no other text."""
         return dataset["metadata"]
 
 
-def create_openai_api_function(model: str = "gpt-4o-mini", api_key: str = None):
+def create_openai_api_function(model: Optional[str] = None, api_key: str = None, api_base: Optional[str] = None):
     """
-    Create an OpenAI API function for parsing.
+    Create an OpenAI-compatible API function for parsing.
     
     Args:
-        model: OpenAI model name (e.g., "gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo")
-        api_key: OpenAI API key (if None, reads from OPENAI_API_KEY env var)
+        model: Model name (default: OPENAI_MODEL env or "gpt-4o-mini")
+        api_key: API key (if None, reads from OPENAI_API_KEY env var)
+        api_base: API base URL for OpenAI-compatible endpoints (default: OPENAI_API_BASE env)
         
     Returns:
         Function that takes a prompt and returns LLM response
@@ -1189,13 +1190,21 @@ def create_openai_api_function(model: str = "gpt-4o-mini", api_key: str = None):
     except ImportError:
         raise ImportError("OpenAI package not installed. Run: pip install openai")
     
+    if model is None:
+        model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
     if api_key is None:
         api_key = os.getenv("OPENAI_API_KEY")
+    if api_base is None:
+        api_base = os.getenv("OPENAI_API_BASE")
     
-    if not api_key:
-        raise ValueError("OpenAI API key not found. Set OPENAI_API_KEY environment variable or pass api_key parameter.")
+    client_kwargs = {"api_key": api_key or "dummy-key"}
+    if api_base:
+        client_kwargs["base_url"] = api_base
     
-    client = OpenAI(api_key=api_key)
+    if not api_key and not api_base:
+        raise ValueError("OpenAI API key not found. Set OPENAI_API_KEY environment variable or pass api_key parameter. For custom endpoints, set OPENAI_API_BASE.")
+    
+    client = OpenAI(**client_kwargs)
     
     def api_function(prompt: str) -> str:
         """Call OpenAI API with the prompt."""

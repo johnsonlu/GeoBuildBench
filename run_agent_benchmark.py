@@ -345,7 +345,8 @@ class DetailedMetrics:
 class AgentBenchmarkRunner:
     """Run and evaluate agent on benchmark problems."""
     
-    def __init__(self, model: str = "gpt-4o", max_iterations: int = 10,
+    def __init__(self, model: str = "gpt-4o", api_base: Optional[str] = None,
+                 max_iterations: int = 10,
                  save_images: bool = True, verbose: bool = False,
                  use_vision: bool = True, run_id: Optional[str] = None,
                  resume_dir: Optional[str] = None, additional_prompt: Optional[str] = None):
@@ -354,6 +355,7 @@ class AgentBenchmarkRunner:
 
         Args:
             model: LLM model to use
+            api_base: API base URL for OpenAI-compatible endpoints (default: from OPENAI_API_BASE env)
             max_iterations: Max iterations per problem
             save_images: Save intermediate images
             verbose: Print detailed logs
@@ -363,6 +365,7 @@ class AgentBenchmarkRunner:
             additional_prompt: Additional prompt text to append to system prompt (optional)
         """
         self.model = model
+        self.api_base = api_base
         self.max_iterations = max_iterations
         self.save_images = save_images
         self.verbose = verbose
@@ -383,6 +386,7 @@ class AgentBenchmarkRunner:
 
         self.agent = ReActAgent(
             model=model,
+            api_base=api_base,
             max_iterations=max_iterations,
             save_images=save_images,
             log_dir="agent_logs",
@@ -964,8 +968,15 @@ def main():
     parser.add_argument(
         "--model",
         type=str,
-        default="gpt-4o",
-        help="LLM model to use"
+        default=os.getenv("OPENAI_MODEL", "gpt-4o"),
+        help="LLM model to use (default: OPENAI_MODEL env or gpt-4o)"
+    )
+
+    parser.add_argument(
+        "--api-base",
+        type=str,
+        default=os.getenv("OPENAI_API_BASE"),
+        help="API base URL for OpenAI-compatible endpoints (default: OPENAI_API_BASE env)"
     )
     
     parser.add_argument(
@@ -1046,11 +1057,13 @@ def main():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         args.output = f"results_{model_name}_{timestamp}.json"
     
-    # Check for API key
+    # Check for API key (skip check if using a custom OpenAI-compatible endpoint)
+    api_base = args.api_base or os.getenv("OPENAI_API_BASE")
     if "gpt" in args.model.lower() or "openai" in args.model.lower():
-        if not os.getenv("OPENAI_API_KEY"):
+        if not os.getenv("OPENAI_API_KEY") and not api_base:
             print("ERROR: OPENAI_API_KEY not found in environment")
             print("Please set it in .env file or environment variables")
+            print("(Set OPENAI_API_BASE to use a custom OpenAI-compatible endpoint without a key)")
             return 1
     elif "claude" in args.model.lower() or "anthropic" in args.model.lower():
         if not os.getenv("ANTHROPIC_API_KEY"):
@@ -1128,6 +1141,7 @@ def main():
     # Initialize runner
     runner = AgentBenchmarkRunner(
         model=args.model,
+        api_base=api_base,
         max_iterations=args.max_iter,
         save_images=not args.no_save_images,
         verbose=args.verbose,

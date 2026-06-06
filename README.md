@@ -13,15 +13,22 @@ Python tool for generating geometric constructions from problem descriptions usi
 
 ## Installation
 
-```bash
-# Using conda (recommended)
-conda activate your_env
-pip install -r requirements.txt
+Requirements: Python >= 3.10 and [uv](https://docs.astral.sh/uv/).
 
-# Or using pip with virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+```bash
+# Clone and install dependencies
+git clone <repo-url>
+cd GeoBuildBench
+uv sync
+```
+
+This creates a virtual environment in `.venv/` and installs the `pyggb` package and all dependencies. Activate it with `source .venv/bin/activate`, or prefix commands with `uv run`.
+
+### Adding/Updating Dependencies
+
+```bash
+uv add <package>
+uv sync
 ```
 
 ### Environment Setup

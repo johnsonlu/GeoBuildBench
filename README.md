@@ -33,23 +33,36 @@ uv sync
 
 ### Environment Setup
 
-Create a `.env` file with your API keys:
+Create a `.env` file with your API keys and model settings:
 
 ```bash
-OPENAI_API_KEY=your-openai-api-key
+# OpenAI / OpenAI-compatible API Key
+OPENAI_API_KEY=your-api-key-here
+
+# For OpenAI-compatible providers (DeepSeek, vLLM, OpenRouter, etc.),
+# set the API base URL and model name:
+# OPENAI_API_BASE=https://api.deepseek.com
+# OPENAI_MODEL=deepseek-v4-flash
 ```
+
+See `.env.example` for all available options.
 
 ## Quick Start
 
 ### Run Benchmark
 
 ```bash
-# Single problem
+# Single problem with OpenAI
 python run_agent_benchmark.py --problem-id 0 --model gpt-4o --verbose
+
+# With DeepSeek (or any OpenAI-compatible provider)
+python run_agent_benchmark.py --problem-id 0 --model deepseek-v4-flash --api-base https://api.deepseek.com --no-vision --verbose
 
 # Batch mode
 python run_agent_benchmark.py --batch --model gpt-4o --limit 10
 ```
+
+**Note:** Non-OpenAI models often don't support image inputs. Use `--no-vision` to disable sending rendered images to the LLM. Vision-capable models (e.g. GPT-4o, Claude 3.5 Sonnet, Gemini) can use vision by omitting this flag.
 
 ### Interactive Viewer
 
